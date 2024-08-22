@@ -10,6 +10,7 @@ class Carousel {
         this.carouselPlayState = null;
         this.callbacks = {
             onChanged: null,
+            onImageClicked: null,
         };
 
         if (buttons != null) {
@@ -44,9 +45,17 @@ class Carousel {
             // Add item attributes
             img.src = item.src;
             img.setAttribute('loading', 'lazy');
+            img.setAttribute('style', 'cursor: pointer;');
             carouselItem.className = `carousel3d-item carousel3d-item-${index + 1}`;
             // Used to keep track of carousel items, infinite items possible in carousel however min 3 items required
             carouselItem.setAttribute('data-index', `${index + 1}`);
+
+            // Run callback function
+            img.onclick = () => {
+                if (typeof this.callbacks.onImageClicked === 'function') {
+                    this.callbacks.onImageClicked(item);  // Pass the clicked image data
+                }
+            };
         });
 
         this.carouselButtons.forEach((option) => {
@@ -96,6 +105,8 @@ class Carousel {
     on(event, callback) {
         if (event === 'changed') {
             this.callbacks.onChanged = callback;
+        } else if (event === 'imageClicked') {
+            this.callbacks.onImageClicked = callback;
         }
     }
 
@@ -218,6 +229,10 @@ class Carousel {
 //	    var carousel = new Carousel(el, buttons, datas);
 //	    carousel.on('changed', (data) => {
 //	        console.log('onChanged, current data:', data);
+//	        // Do Somethig...
+//	    });
+//	    carousel.on('imageClicked', (data) => {
+//	        console.log('onImageClicked, current data:', data);
 //	        // Do Somethig...
 //	    });
 //	    carousel.mounted();
