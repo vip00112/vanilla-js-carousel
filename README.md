@@ -13,6 +13,10 @@ A simple sliding 3D carousel gallery made with html, css & js
 4. Change button icon
 
 
+# Preview
+![2024-08-22_14 01 59](https://github.com/user-attachments/assets/07bc4441-a717-4549-bc95-b5290015ef00)
+
+
 # How to use
 1. Initial
 ```javascript
