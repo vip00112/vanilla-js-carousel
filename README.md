@@ -11,6 +11,8 @@ A simple sliding 3D carousel gallery made with html, css & js
 2. Delete add button and feature
 3. Item size : Fiexed > Responsive
 4. Change button icon
+5. Change class name : carousel -> carousel3d
+6. Add onChanged callback function
 
 
 # Preview
@@ -34,6 +36,10 @@ document.addEventListener('DOMContentLoaded', function () {
         { 'src': 'https://via.placeholder.com/250x500?text=8' },
     ];
     var carousel = new Carousel(el, buttons, datas);
+    carousel.on('changed', (data) => {
+        console.log('onChanged, current data:', data);
+        // Do Somethig...
+    });
     carousel.mounted();
 });
 ```
