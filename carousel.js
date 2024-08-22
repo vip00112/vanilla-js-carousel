@@ -186,10 +186,12 @@ class Carousel {
     }
 
     setDatas(datas) {
-        datas.map((data, index) => data.id = index + 1);
-
-        this.carouselData = datas;
-        this.carouselInView = datas.map((data, index) => data.id);
+        this.carouselData = datas.map((data, index) => {
+            const newData = JSON.parse(JSON.stringify(data));
+            newData.id = index + 1;
+            return newData;
+        });
+        this.carouselInView = this.carouselData.map(data => data.id);
     }
 
     addData(data) {
