@@ -6,8 +6,14 @@ Forked from "https://github.com/benkimo6i/vanilla-js-carousel"
 A simple sliding 3D carousel gallery made with html, css & js
 
 
-# How to use
+# Changes
+1. Number of items shown : 5 -> 3
+2. Delete add button and feature
+3. Item size : Fiexed > Responsive
+4. Change button icon
 
+
+# How to use
 1. Initial
 ```javascript
 document.addEventListener('DOMContentLoaded', function () {
