@@ -40,6 +40,10 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('onChanged, current data:', data);
         // Do Somethig...
     });
+    carousel.on('imageClicked', (data) => {
+        console.log('onImageClicked, current data:', data);
+        // Do Somethig...
+    });
     carousel.mounted();
 });
 ```
