@@ -1,193 +1,208 @@
 'use strict';
 
 class Carousel {
-  constructor(el) {
-    this.el = el;
-    this.carouselOptions = ['previous', 'add', 'play', 'next'];
-    this.carouselData = [
-      {
-        'id': '1',
-        'src': 'http://fakeimg.pl/300/?text=1',
-      },
-      {
-        'id': '2',
-        'src': 'http://fakeimg.pl/300/?text=2',
-      },
-      {
-        'id': '3',
-        'src': 'http://fakeimg.pl/300/?text=3',
-      },
-      {
-        'id': '4',
-        'src': 'http://fakeimg.pl/300/?text=4',
-      },
-      {
-        'id': '5',
-        'src': 'http://fakeimg.pl/300/?text=5',
-      }
-    ];
-    this.carouselInView = [1, 2, 3, 4, 5];
-    this.carouselContainer;
-    this.carouselPlayState;
-  }
+    constructor(el, buttons, datas) {
+        this.el = el;
+        this.carouselButtons = [];
+        this.carouselData = [];
+        this.carouselInView = [];
+        this.carouselContainer = null;
+        this.carouselPlayState = null;
 
-  mounted() {
-    this.setupCarousel();
-  }
+        if (buttons != null) {
+            this.setButtons(buttons);
+        }
+        if (datas != null) {
+            this.setDatas(datas);
+        }
+    }
 
-  // Build carousel html
-  setupCarousel() {
-    const container = document.createElement('div');
-    const controls = document.createElement('div');
+    // Build carousel html
+    setupCarousel() {
+        if (!this.carouselData.length) return;
 
-    // Add container for carousel items and controls
-    this.el.append(container, controls);
-    container.className = 'carousel-container';
-    controls.className = 'carousel-controls';
+        const container = document.createElement('div');
+        const controls = document.createElement('div');
 
-    // Take dataset array and append items to container
-    this.carouselData.forEach((item, index) => {
-      const carouselItem = item.src ? document.createElement('img') : document.createElement('div');
+        // Add container for carousel items and controls
+        this.el.innerHTML = ''; // Clear previous content
+        this.el.append(container, controls);
+        container.className = 'carousel3d-container';
+        controls.className = 'carousel3d-controls';
 
-      container.append(carouselItem);
-      
-      // Add item attributes
-      carouselItem.className = `carousel-item carousel-item-${index + 1}`;
-      carouselItem.src = item.src;
-      carouselItem.setAttribute('loading', 'lazy');
-      // Used to keep track of carousel items, infinite items possible in carousel however min 5 items required
-      carouselItem.setAttribute('data-index', `${index + 1}`);
-    });
+        // Take dataset array and append items to container
+        this.carouselData.forEach((item, index) => {
+            const img = document.createElement('img');
+            const carouselItem = document.createElement('div');
 
-    this.carouselOptions.forEach((option) => {
-      const btn = document.createElement('button');
-      const axSpan = document.createElement('span');
+            carouselItem.append(img);
+            container.append(carouselItem);
 
-      // Add accessibilty spans to button
-      axSpan.innerText = option;
-      axSpan.className = 'ax-hidden';
-      btn.append(axSpan);
+            // Add item attributes
+            img.src = item.src;
+            img.setAttribute('loading', 'lazy');
+            carouselItem.className = `carousel3d-item carousel3d-item-${index + 1}`;
+            // Used to keep track of carousel items, infinite items possible in carousel however min 3 items required
+            carouselItem.setAttribute('data-index', `${index + 1}`);
+        });
 
-      // Add button attributes
-      btn.className = `carousel-control carousel-control-${option}`;
-      btn.setAttribute('data-name', option);
+        this.carouselButtons.forEach((option) => {
+            const btn = document.createElement('button');
+            const axSpan = document.createElement('span');
 
-      // Add carousel control options
-      controls.append(btn);
-    });
+            // Add accessibilty spans to button
+            axSpan.innerText = option;
+            axSpan.className = 'ax-hidden';
+            btn.append(axSpan);
 
-    // After rendering carousel to our DOM, setup carousel controls' event listeners
-    this.setControls([...controls.children]);
+            // Add button attributes
+            btn.className = `carousel3d-control carousel3d-control-${option}`;
+            btn.setAttribute('data-name', option);
 
-    // Set container property
-    this.carouselContainer = container;
-  }
+            // Add carousel control options
+            controls.append(btn);
+        });
 
-  setControls(controls) {
-    controls.forEach(control => {
-      control.onclick = (event) => {
-        event.preventDefault();
+        // After rendering carousel to our DOM, setup carousel controls' event listeners
+        this.setControls([...controls.children]);
 
-        // Manage control actions, update our carousel data first then with a callback update our DOM
-        this.controlManager(control.dataset.name);
-      };
-    });
-  }
+        // Set container property
+        this.carouselContainer = container;
+    }
 
-  controlManager(control) {
-    if (control === 'previous') return this.previous();
-    if (control === 'next') return this.next();
-    if (control === 'add') return this.add();
-    if (control === 'play') return this.play();
+    setControls(controls) {
+        controls.forEach(control => {
+            control.onclick = (event) => {
+                event.preventDefault();
 
-    return;
-  }
+                // Manage control actions, update our carousel data first then with a callback update our DOM
+                this.controlManager(control.dataset.name);
+            };
+        });
+    }
 
-  previous() {
-    // Update order of items in data array to be shown in carousel
-    this.carouselData.unshift(this.carouselData.pop());
+    controlManager(control) {
+        if (control === 'previous') return this.previous();
+        if (control === 'next') return this.next();
+        if (control === 'play') return this.play();
 
-    // Push the first item to the end of the array so that the previous item is front and center
-    this.carouselInView.push(this.carouselInView.shift());
+        return;
+    }
 
-    // Update the css class for each carousel item in view
-    this.carouselInView.forEach((item, index) => {
-      this.carouselContainer.children[index].className = `carousel-item carousel-item-${item}`;
-    });
+    previous() {
+        // Update order of items in data array to be shown in carousel
+        this.carouselData.unshift(this.carouselData.pop());
 
-    // Using the first 5 items in data array update content of carousel items in view
-    this.carouselData.slice(0, 5).forEach((data, index) => {
-      document.querySelector(`.carousel-item-${index + 1}`).src = data.src;
-    });
-  }
+        // Push the first item to the end of the array so that the previous item is front and center
+        this.carouselInView.push(this.carouselInView.shift());
 
-  next() {
-    // Update order of items in data array to be shown in carousel
-    this.carouselData.push(this.carouselData.shift());
+        // Update the css class for each carousel item in view
+        this.carouselInView.forEach((item, index) => {
+            this.carouselContainer.children[index].className = `carousel3d-item carousel3d-item-${item}`;
+        });
 
-    // Take the last item and add it to the beginning of the array so that the next item is front and center
-    this.carouselInView.unshift(this.carouselInView.pop());
+        // Using the first 3 items in data array update content of carousel items in view
+        this.carouselData.slice(0, 3).forEach((data, index) => {
+            document.querySelector(`.carousel3d-item-${index + 1} img`).src = data.src;
+        });
+    }
 
-    // Update the css class for each carousel item in view
-    this.carouselInView.forEach((item, index) => {
-      this.carouselContainer.children[index].className = `carousel-item carousel-item-${item}`;
-    });
+    next() {
+        // Update order of items in data array to be shown in carousel
+        this.carouselData.push(this.carouselData.shift());
 
-    // Using the first 5 items in data array update content of carousel items in view
-    this.carouselData.slice(0, 5).forEach((data, index) => {
-      document.querySelector(`.carousel-item-${index + 1}`).src = data.src;
-    });
-  }
+        // Take the last item and add it to the beginning of the array so that the next item is front and center
+        this.carouselInView.unshift(this.carouselInView.pop());
 
-  add() {
-    const newItem = {
-      'id': '',
-      'src': '',
-    };
-    const lastItem = this.carouselData.length;
-    const lastIndex = this.carouselData.findIndex(item => item.id == lastItem);
-    
-    // Assign properties for new carousel item
-    Object.assign(newItem, {
-      id: `${lastItem + 1}`,
-      src: `http://fakeimg.pl/300/?text=${lastItem + 1}`
-    });
+        // Update the css class for each carousel item in view
+        this.carouselInView.forEach((item, index) => {
+            this.carouselContainer.children[index].className = `carousel3d-item carousel3d-item-${item}`;
+        });
 
-    // Then add it to the "last" item in our carouselData
-    this.carouselData.splice(lastIndex + 1, 0, newItem);
+        // Using the first 3 items in data array update content of carousel items in view
+        this.carouselData.slice(0, 3).forEach((data, index) => {
+            document.querySelector(`.carousel3d-item-${index + 1} img`).src = data.src;
+        });
+    }
 
-    // Shift carousel to display new item
-    this.next();
-  }
+    play() {
+        const playBtn = document.querySelector('.carousel3d-control-play');
+        const startPlaying = () => this.next();
 
-  play() {
-    const playBtn = document.querySelector('.carousel-control-play');
-    const startPlaying = () => this.next();
+        if (playBtn.classList.contains('playing')) {
+            // Remove class to return to play button state/appearance
+            playBtn.classList.remove('playing');
 
-    if (playBtn.classList.contains('playing')) {
-      // Remove class to return to play button state/appearance
-      playBtn.classList.remove('playing');
+            // Remove setInterval
+            clearInterval(this.carouselPlayState);
+            this.carouselPlayState = null;
+        } else {
+            // Add class to change to pause button state/appearance
+            playBtn.classList.add('playing');
 
-      // Remove setInterval
-      clearInterval(this.carouselPlayState); 
-      this.carouselPlayState = null; 
-    } else {
-      // Add class to change to pause button state/appearance
-      playBtn.classList.add('playing');
+            // First run initial next method
+            this.next();
 
-      // First run initial next method
-      this.next();
+            // Use play state prop to store interval ID and run next method on a 1.5 second interval
+            this.carouselPlayState = setInterval(startPlaying, 1500);
+        };
+    }
 
-      // Use play state prop to store interval ID and run next method on a 1.5 second interval
-      this.carouselPlayState = setInterval(startPlaying, 1500);
-    };
-  }
+    setButtons(buttons) {
+        this.carouselButtons = buttons;
+    }
 
+    setDatas(datas) {
+        datas.map((data, index) => data.id = index + 1);
+
+        this.carouselData = datas;
+        this.carouselInView = datas.map((data, index) => data.id);
+    }
+
+    addData(data) {
+        const lastItem = this.carouselData.length;
+        const lastIndex = this.carouselData.findIndex(item => item.id == lastItem);
+
+        // Assign properties for new carousel item
+        Object.assign(data, { id: `${lastItem + 1}` });
+
+        // Then add it to the "last" item in our carouselData
+        this.carouselData.splice(lastIndex + 1, 0, data);
+
+        // Shift carousel to display new item
+        this.next();
+    }
+
+    mounted() {
+        this.setupCarousel();
+    }
 }
 
-// Refers to the carousel root element you want to target, use specific class selectors if using multiple carousels
-const el = document.querySelector('.carousel');
-// Create a new carousel object
-const exampleCarousel = new Carousel(el);
-// Setup carousel and methods
-exampleCarousel.mounted();
+//	How to use
+//	1. Initial
+//	document.addEventListener('DOMContentLoaded', function () {
+//	    var el = document.querySelector('.carousel3d');
+//	    var buttons = ['previous', 'play', 'next'];
+//	    var datas = [
+//	        { 'src': 'https://via.placeholder.com/500x250?text=1' },
+//	        { 'src': 'https://via.placeholder.com/250x500?text=2' },
+//	        { 'src': 'https://via.placeholder.com/250x500?text=3' },
+//	        { 'src': 'https://via.placeholder.com/500x250?text=4' },
+//	        { 'src': 'https://via.placeholder.com/500x250?text=5' },
+//	        { 'src': 'https://via.placeholder.com/250x500?text=6' },
+//	        { 'src': 'https://via.placeholder.com/500x250?text=7' },
+//	        { 'src': 'https://via.placeholder.com/250x500?text=8' },
+//	    ];
+//	    var carousel = new Carousel(el, buttons, datas);
+//	    carousel.mounted();
+//	});
+//
+//	2. Change button or data
+//	var buttons = ['previous', 'next'];
+//	var datas = [
+//	    { 'src': 'https://via.placeholder.com/500x250?text=1' },
+//	    { 'src': 'https://via.placeholder.com/500x250?text=2' }
+//	];
+//	carousel.setButtons(buttons);
+//	carousel.setDatas(datas);
+//	carousel.mounted();
