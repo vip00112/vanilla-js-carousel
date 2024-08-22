@@ -8,6 +8,9 @@ class Carousel {
         this.carouselInView = [];
         this.carouselContainer = null;
         this.carouselPlayState = null;
+        this.callbacks = {
+            onChanged: null,
+        };
 
         if (buttons != null) {
             this.setButtons(buttons);
@@ -89,6 +92,13 @@ class Carousel {
         return;
     }
 
+    // Add callback function
+    on(event, callback) {
+        if (event === 'changed') {
+            this.callbacks.onChanged = callback;
+        }
+    }
+
     previous() {
         // Update order of items in data array to be shown in carousel
         this.carouselData.unshift(this.carouselData.pop());
@@ -105,6 +115,12 @@ class Carousel {
         this.carouselData.slice(0, 3).forEach((data, index) => {
             document.querySelector(`.carousel3d-item-${index + 1} img`).src = data.src;
         });
+
+        // Run callback function
+        if (typeof this.callbacks.onChanged === 'function') {
+            const data = (this.carouselData.length && this.carouselData.length > 1) ? this.carouselData[1] : null;
+            this.callbacks.onChanged(data);
+        }
     }
 
     next() {
@@ -123,6 +139,12 @@ class Carousel {
         this.carouselData.slice(0, 3).forEach((data, index) => {
             document.querySelector(`.carousel3d-item-${index + 1} img`).src = data.src;
         });
+
+        // Run callback function
+        if (typeof this.callbacks.onChanged === 'function') {
+            const data = (this.carouselData.length && this.carouselData.length > 1) ? this.carouselData[1] : null;
+            this.callbacks.onChanged(data);
+        }
     }
 
     play() {
@@ -194,6 +216,10 @@ class Carousel {
 //	        { 'src': 'https://via.placeholder.com/250x500?text=8' },
 //	    ];
 //	    var carousel = new Carousel(el, buttons, datas);
+//	    carousel.on('changed', (data) => {
+//	        console.log('onChanged, current data:', data);
+//	        // Do Somethig...
+//	    });
 //	    carousel.mounted();
 //	});
 //
